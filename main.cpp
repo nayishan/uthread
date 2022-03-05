@@ -17,10 +17,16 @@ void func2(void * arg)
     uthread_yield(*(schedule_t *)arg);
     puts("22");
     puts("22");
+    uthread_yield(*(schedule_t *)arg);
+    puts("22");
+    puts("22");
 }
 
 void func3(void *arg)
 {
+    puts("3333");
+    puts("3333");
+    uthread_yield(*(schedule_t *)arg);
     puts("3333");
     puts("3333");
     uthread_yield(*(schedule_t *)arg);
@@ -63,7 +69,7 @@ void schedule_test()
 int main()
 {
 
-    context_test();
+	context_test();
     puts("----------------");
     schedule_test();
 

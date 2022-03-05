@@ -14,7 +14,8 @@
 
 
 #include "uthread.h"
-//#include <stdio.h>
+#include <stdio.h>
+#include <unistd.h>
 
 void uthread_resume(schedule_t &schedule , int id)
 {
@@ -23,10 +24,15 @@ void uthread_resume(schedule_t &schedule , int id)
     }
 
     uthread_t *t = &(schedule.threads[id]);
+    schedule.running_thread = id;
 
     if (t->state == SUSPEND) {
         swapcontext(&(schedule.main),&(t->ctx));
     }
+	else {
+    	t->state = RUNNING;
+        swapcontext(&(schedule.main),&(t->ctx));
+	}
 }
 
 void uthread_yield(schedule_t &schedule)
@@ -74,18 +80,14 @@ int uthread_create(schedule_t &schedule,Fun func,void *arg)
     t->state = RUNNABLE;
     t->func = func;
     t->arg = arg;
-
     getcontext(&(t->ctx));
     
     t->ctx.uc_stack.ss_sp = t->stack;
     t->ctx.uc_stack.ss_size = DEFAULT_STACK_SZIE;
     t->ctx.uc_stack.ss_flags = 0;
     t->ctx.uc_link = &(schedule.main);
-    schedule.running_thread = id;
-    
     makecontext(&(t->ctx),(void (*)(void))(uthread_body),1,&schedule);
-    swapcontext(&(schedule.main), &(t->ctx));
-    
+
     return id;
 }
 
